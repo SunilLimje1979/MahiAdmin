@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+            <div class="data-block1">
+                <div class="container-fluid d-flex justify-content-between align-items-center">
+                    <span class="navbar-brand1">CRM Users Details</span>
+                    <span class="user-count">Total: {{data.total_leads_count}}</span>
+                </div>
+            </div>
+            <div class="search-bar mb-2">
+                <input type="text" id="searchleadInput" class="form-control" placeholder="Search by Lead name">
+            </div>
+            {% include "includes/message.html" %}
+            <div id="leadCards">
+                {% for lead in data.lead_followup_details %}
+                <div class="lead-card" data-lead-id="{{ lead.lead_id }}" data-lead-name="{{ lead.lead_name }}">
+                    <div class="user-info">{{ lead.lead_name }}</div>
+                    <div class="user-info">{{ lead.followup_count }}</div>
+                </div>
+                {% endfor %}
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script>
+        function applyleadSearchFilter() {
+            const searchleadInput = document.getElementById('searchleadInput');
+            const leadfilter = searchleadInput.value.toLowerCase();
+            const leadCards = document.querySelectorAll('.lead-card');
+
+            leadCards.forEach(card => {
+                const leadname = card.getAttribute('data-lead-name').toLowerCase();
+
+                if (leadname.includes(leadfilter)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        const searchleadInput = document.getElementById('searchleadInput');
+        searchleadInput.addEventListener('input', applyleadSearchFilter);
+    </script>
+</body>
+</html>

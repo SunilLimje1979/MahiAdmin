@@ -5,6 +5,7 @@ from django.contrib import messages
 import requests
 import json
 import datetime
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -15,7 +16,7 @@ def hello(request):
 def Login(request):
     if request.method == "POST":
         username = request.POST['username']
-        password = request.POST['pass1']
+        password = request.POST['password']
         print(username, password)
 
         user = authenticate(request, username=username, password=password)
@@ -32,8 +33,11 @@ def Login(request):
         
     return render(request, 'login.html')
 
+
 def index(request):
     return render(request, 'index.html', context={})
+
+
 def base(request):
     return render(request, 'base.html', context={})
 
@@ -113,4 +117,27 @@ def filter_doctors(request):
         return JsonResponse({'doctors': data})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+def allcrmuser(request):
+    api_url_users = "http://13.233.211.102/masters/api/get_all_Authusers/"
+    allusers = []
+    response_users = requests.post(api_url_users)
+    response_data_users = response_users.json()
+    allusers = response_data_users.get('message_data', [])
+    print(allusers)
+    return render(request,'crm/crmusers.html',{'allusers':allusers})
+
+
+def get_crmuser_details(request,id):
+    print(id)
+    res = requests.post('http://13.233.211.102/masters/api/get_crmuser_details/',json={'lead_by_id':id})
+    if(res.json().get('message_code')==1000):
+        data = res.json().get('message_data')
+        print(data)
+    else:
+        data=res.json().get('message_data')
+        print(data)
+    return render(request,'crm/crmuserdetail.html',{'data':data})
     

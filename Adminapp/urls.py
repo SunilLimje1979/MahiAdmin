@@ -11,6 +11,10 @@ urlpatterns = [
     path('Logout/',Logout,name='Logout'),
     path('allRegistered/',allRegistered,name='allRegistered'),
     path('get_doctor_details/<int:id>',get_doctor_details,name='get_doctor_details'),
-     path('filter_doctors/',filter_doctors, name='filter_doctors'),
+    path('filter_doctors/',filter_doctors, name='filter_doctors'),
+
+    ###################CRM#################################
+    path('allcrmuser/',allcrmuser,name='allcrmuser'),
+    path('get_crmuser_details/<int:id>',get_crmuser_details,name='get_crmuser_details'),
     
 ]

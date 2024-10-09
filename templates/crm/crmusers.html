@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "base.html" %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-container {
+            width: 65%;  
+            margin-top: 1px;
+            padding: 2px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .form-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .navbar-brand1 {
+            color: #FFFFFF;
+            font-size: 25px;
+        }
+
+        .user-card, .lead-card {
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ff7f50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .user-card:hover,
+        .lead-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+        }
+
+
+        .user-card:hover ,
+        .lead-card:hover {
+            background-color: #fafafa;
+        }
+
+        .user-info {
+            font-size: 16px;
+            color: #0c0c0d;
+        }
+
+        .user-list {
+            width: 35%;
+            max-height: 100%;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .user-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .data-block1 {
+            border: 1px solid #ddd;
+            padding: 7px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            background-color: #A52028;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            height: calc(100vh - 60px);
+        }
+
+        .user-count {
+            color: #FFFFFF;
+            font-size: 25px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex-container">
+        <div class="user-list">
+            <div class="data-block1">
+                <div class="container-fluid d-flex justify-content-between align-items-center">
+                    <span class="navbar-brand1">CRM Users</span>
+                    <span class="user-count">Total: {{ allusers|length }}</span>
+                </div>
+            </div>
+            <div class="search-bar mb-2">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name or username">
+            </div>
+            {% include "includes/message.html" %}
+            <div id="userCards">
+                {% for user in allusers %}
+                <div class="user-card" data-user-id="{{ user.id }}" data-user-name="{{ user.first_name }} {{ user.last_name }}" data-user-username="{{ user.username }}">
+                    <div class="user-info">{{ user.username }}</div>
+                    <div class="user-info">{{ user.first_name }} {{ user.last_name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-container" id="getuserdetails" style="display: none;">
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function attachCardEventListeners() {
+                const userCards = document.querySelectorAll('.user-card');
+
+                userCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-user-id');
+                        fetch(`/MahiAdmin/get_crmuser_details/${userId}`)
+                            .then(response => response.text())
+                            .then(html => {
+                                document.getElementById('getuserdetails').innerHTML = html;
+                                document.getElementById('getuserdetails').style.display = 'block';
+                                // Reinitialize any scripts needed for the newly loaded content
+                                initializeLoadedContentScripts();
+                            })
+                            .catch(error => console.error('Error fetching user details:', error));
+                    });
+                });
+            }
+            // Function to initialize scripts for dynamically loaded content
+            function initializeLoadedContentScripts() {
+                // Example: If you have other scripts to run inside the dynamically loaded content
+                // Reattach any events, initialize plugins, etc.
+                // Suppose the new HTML has its own script that needs initializing
+                const loadedScripts = document.querySelectorAll('script');
+                loadedScripts.forEach(script => {
+                    eval(script.innerText); // Evaluate and run the scripts from dynamically loaded content
+                });
+
+                // If any specific elements need event listeners, reattach them here
+            }
+
+            function applySearchFilter() {
+                const searchInput = document.getElementById('searchInput');
+                const filter = searchInput.value.toLowerCase();
+                const userCards = document.querySelectorAll('.user-card');
+
+                userCards.forEach(card => {
+                    const name = card.getAttribute('data-user-name').toLowerCase();
+                    const username = card.getAttribute('data-user-username').toLowerCase();
+
+                    if (name.includes(filter) || username.includes(filter)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', applySearchFilter);
+
+            attachCardEventListeners();
+        });
+    </script>
+</body>
+{% endblock content %}
+</html>
