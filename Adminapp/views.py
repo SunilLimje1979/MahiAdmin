@@ -317,7 +317,7 @@ def allLaboratory(request):
         else:
             all_laboratory = []
 
-        return render(request,'Laboratory/allLaboratory.html',{'all_laboratory':all_laboratory})
+        return render(request,'laboratory/allLaboratory.html',{'all_laboratory':all_laboratory})
  
     else:
         return redirect(Login)
@@ -351,7 +351,7 @@ def get_laboratory_details(request,id):
     else:
         doctors=[]
 
-    return render(request,'Laboratory/laboratory.html',{'laboratory_data':laboratory_data,'stats':stats,'doctors':doctors})
+    return render(request,'laboratory/laboratory.html',{'laboratory_data':laboratory_data,'stats':stats,'doctors':doctors})
 
 
 @csrf_exempt
