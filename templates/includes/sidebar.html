@@ -13,11 +13,19 @@
             </li>
 
             <li class="{% active_link 'allRegistered' %}">
-                <a href="{% url 'allRegistered' %}"><i class="fas fa-house-user"></i> <span>Doctors</span></a>
+                <a href="{% url 'allRegistered' %}"><i class="fa-solid fa-user-doctor"></i> <span>Doctors</span></a>
             </li>
 
             <li class="{% active_link 'allcrmuser' %}">
                 <a href="{% url 'allcrmuser' %}"><i class="fa-solid fa-users-viewfinder"></i> <span>CRM-Users</span></a>
+            </li>
+
+            <li class="{% active_link 'allpharmacist' %}">
+                <a href="{% url 'allpharmacist' %}"><i class="fa-solid fa-truck-medical"></i><span>Pharmacists</span></a>
+            </li>
+
+            <li class="{% active_link 'allLaboratory' %}">
+                <a href="{% url 'allLaboratory' %}"><i class="fa-solid fa-briefcase-medical"></i><span>Laboratory</span></a>
             </li>
  
         </div>

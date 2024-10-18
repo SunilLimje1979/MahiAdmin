@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Profile</title>
+    <title>pharmacy Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
@@ -17,7 +17,7 @@
             color: #FFFFFF;
             font-size: 25px;
         }
-        .doctor-profile-card, .clinic-profile-card, .stats-card, .users-card1 {
+        .pharmacy-profile-card, .clinic-profile-card, .stats-card, .users-card1 {
             background-color: white;
             padding: 10px; /* Increased padding for more space inside the card */
             margin-bottom: 10px; /* Increased margin for better spacing between cards */
@@ -56,90 +56,73 @@
     <div class="container">
         <div class="data-block1 mb-3">
             <div class="container-fluid d-flex justify-content-between align-items-center">
-                <a class="navbar-brand1" href="{% url 'allRegistered' %}" >
-                    <i class="fas fa-arrow-left"></i> Doctor Details
+                <a class="navbar-brand1" href="{% url 'allpharmacist' %}" >
+                    <i class="fas fa-arrow-left"></i> pharmacy Details
                 </a>
-                <span class="doctor-count">Registered on: {{ doctor_data.createdon }}</span>
+                <span class="pharmacy-count">Registered on: {{ pharmacy_data.created_on_formatted}}</span>
             </div>
         </div>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="doctor-profile-tab" data-bs-toggle="tab" data-bs-target="#doctor-profile" type="button" role="tab" aria-controls="doctor-profile" aria-selected="true">Doctor Profile</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="clinic-profile-tab" data-bs-toggle="tab" data-bs-target="#clinic-profile" type="button" role="tab" aria-controls="clinic-profile" aria-selected="false">Clinic Profile</button>
+                <button class="nav-link active" id="pharmacy-profile-tab" data-bs-toggle="tab" data-bs-target="#pharmacy-profile" type="button" role="tab" aria-controls="pharmacy-profile" aria-selected="true">pharmacy Profile</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="false">Stats</button>
             </li>
+    
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">Users</button>
+                <button class="nav-link" id="doctor-tab" data-bs-toggle="tab" data-bs-target="#doctors" type="button" role="tab" aria-controls="doctors" aria-selected="false">Approved Doctor</button>
             </li>
+
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="reset-tab" data-bs-toggle="tab" data-bs-target="#reset" type="button" role="tab" aria-controls="reset" aria-selected="false">Password Reset</button>
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="doctor-profile" role="tabpanel" aria-labelledby="doctor-profile-tab">
-                <div class="doctor-profile-card">
-                    <h3>Doctor Profile</h3>
-                    <p>Name: {{ doctor_data.doctor_firstname }} {{ doctor_data.doctor_lastname }}</p>
-                    <p>Date of Birth: {{ doctor_data.doctor_dateofbirth }}</p>
-                    <p>Email: {{ doctor_data.doctor_email }}</p>
-                    <p>Phone Number: {{ doctor_data.doctor_mobileno }}</p>
-                    <p>Address: {{ doctor_data.doctor_address }}</p>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="clinic-profile" role="tabpanel" aria-labelledby="clinic-profile-tab">
-                <div class="clinic-profile-card">
-                    <h3>Clinic Profile</h3>
-                    {% if clinic_data %}
-                    <p>Clinic Name: {{ clinic_data.location_title }}</p>
-                    <p>Address: {{ clinic_data.location_address }}</p>
-                    {%else%}
-                      <p>The Registeration process is not completed</p>
-                    {%endif%}
+            <div class="tab-pane fade show active" id="pharmacy-profile" role="tabpanel" aria-labelledby="pharmacy-profile-tab">
+                <div class="pharmacy-profile-card">
+                    {% comment %} <h3>pharmacy Profile</h3> {% endcomment %}
+                    <p>{{ pharmacy_data.shop_name }}</p>
+                    <p>{{ pharmacy_data.shop_contact_number}}</p>
+                    <p>{{ pharmacy_data.shop_address}}</p>
+                    <p>{{pharmacy_data.shop_owner_name}}</p>
+                    <p>{{pharmacy_data.shop_owner_number}}</p>
                 </div>
             </div>
             <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">
                 <div class="stats-card">
-                    <h3>Stats</h3>
-                    <p>Consultations Done: {{ stats.consultations }}</p>
-                    <p>Total Patients: {{ stats.patient_linked }}</p>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
-                <div class="users-card1">
-                    <h3>Users</h3>
-                    {% if users %}
-                    <ul class="user-list1">
-                        {% for user in users %}
-                        <li>{{ forloop.counter }}. Name: {{ user.user_name }} &nbsp;&nbsp;&nbsp; Role: 
-                            {% if user.user_role == 1 %}
-                            Reception
-                            {% elif user.user_role == 2 %}
-                            Compounder
-                            {% elif user.user_role == 3 %}
-                            Accountant
-                            {% endif %}
-                            &nbsp;&nbsp;&nbsp; Phone Number: {{ user.user_mobileno }}</li>
-                        {% endfor %}
-                    </ul>
-                    {%else%}
-                      <p>No User Present</p>
-                    {%endif%}
+                    {% comment %} <h3>Stats</h3> {% endcomment %}
+                    <p>Doctors: {{ stats.total_doctor_count }}</p>
+                    <p>Unique Patients: {{ stats.unique_patient_count }}</p>
                 </div>
             </div>
 
+            <div class="tab-pane fade" id="doctors" role="tabpanel" aria-labelledby="doctor-tab">
+                <div class="users-card1">
+                    {% comment %} <h3>Doctors</h3> {% endcomment %}
+                    {% if doctors %}
+                    <ul class="user-list1">
+                        {% for doctor in doctors %}
+                        <li>{{ forloop.counter }}. {{ doctor.doctor_details.doctor_firstname }} {{ doctor.doctor_details.doctor_lastname }} &nbsp;&nbsp;&nbsp; 
+                            {{doctor.doctor_details.doctor_mobileno}}
+                            &nbsp;&nbsp;&nbsp; {{doctor.doctor_details.doctor_email}}</li>
+                        {% endfor %}
+                    </ul>
+                    {%else%}
+                      <p>No Doctor Connected</p>
+                    {%endif%}
+                </div>
+            </div>
             <div class="tab-pane fade" id="reset" role="tabpanel" aria-labelledby="reset">
                 <div class="users-card1">
                     <label for="new-password" class="form-label">Enter New Password</label>
                     <input type="text" class="form-control" id="new-password" placeholder="Enter your new password">
-                    <input id="doctor_id" type="hidden" value="{{doctor_data.doctor_id}}">
+                    <input id="pharmacist_id" type="hidden" value="{{pharmacy_data.pharmacist_id}}">
                     <button class="btn btn-success mt-3 w-100">Reset Password</button> 
                 </div> 
             </div>
-        </div>
+
+        </div> 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
