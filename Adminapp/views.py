@@ -8,6 +8,7 @@ import datetime
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import os
+from time import time
 
 # Create your views here.
 
@@ -561,7 +562,7 @@ def get_deal_details(request,id):
         else:
             deal_data = []
 
-        return render(request,'deals/deal_details.html',{'deal_data':deal_data,'categories':categories})
+        return render(request,'deals/deal_details.html',{'deal_data':deal_data,'categories':categories,"timestamp":int(time())})
     
     else:
         return redirect(Login)
@@ -629,7 +630,7 @@ def update_deal(request):
                     deal_id = request.POST.get('Deal_id')  # Assuming deal_id is passed in POST data
                     extension = os.path.splitext(web_image.name)[1]
                     new_web_file_name = f"{deal_id}_W{extension}"
-                    deal_data['DealContentURL_forWeb']=new_mobile_file_name
+                    deal_data['DealContentURL_forWeb']=new_web_file_name
                     print(new_web_file_name)
                 
                 # Full path for the web image
