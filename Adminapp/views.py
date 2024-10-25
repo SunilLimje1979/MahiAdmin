@@ -7,6 +7,7 @@ import json
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+import os
 
 # Create your views here.
 
@@ -407,4 +408,308 @@ def filter_laboratory(request):
         return JsonResponse({'labs': data})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+################## Deals ##########################
+def AddDeals(request):
+    if(request.user.is_authenticated):
+        if(request.method=='GET'):
+            category_res = requests.post('http://13.233.211.102/masters/api/get_deal_categories/')
+            print(category_res.text)
+            if(category_res.json().get('message_code')==1000):
+                categories = category_res.json().get('message_data')
+            else:
+                categories=[]
+
+            return render(request,'deals/Addandupdatedeals.html',{'categories':categories})
+        
+        else:
+            print(request.POST)
+            visible_to = request.POST.getlist('options[]')
+            deal_category_ids = request.POST.getlist('categories[]')
+            deal_mobile_image = request.FILES.get('DealContentImageMobile')
+            deal_web_image = request.FILES.get('DealContentImageWeb')
+            print(deal_mobile_image,deal_web_image)
+            print(visible_to)
+            print(deal_category_ids)
+
+            deal_data = {
+                    "CompanyName":request.POST.get('CompanyName'),
+                    "DealOwnerMobileNo":request.POST.get('DealOwnerMobileNo'),
+                    "DealOwnerPersonName":request.POST.get('DealOwnerPersonName'),
+                    "DealMedicalNonMedical":int(request.POST.get('DealMedicalNonMedical')),
+                    "DealTitle": request.POST.get('DealTitle'),
+                    "DealKeywords":request.POST.get('DealKeywords'),
+                    "DealWebsiteURL": request.POST.get('DealWebsiteURL'),
+                }
+            
+            if('1' not in visible_to): #1 means doctor
+                deal_data['Show_to_Doctor']= 0 #dont show to doctor app
+            
+            if('2' not in visible_to): #2 means pharmacy
+                deal_data['Show_to_Pharmacy']= 0 #dont show to pharmacy app
+            
+            if('3' not in visible_to): #3 means laboratory
+                deal_data['Show_to_Labs']= 0 #dont show to laboratory app
+            
+            if(deal_mobile_image):
+                deal_data['DealContentURL_forMobile'] = deal_mobile_image.name
+            
+            if(deal_web_image):
+                deal_data['DealContentURL_forWeb'] = deal_web_image.name
+            
+            print(deal_data)
+
+            publish_data = {
+                "PublishedOn": request.POST.get('PublishStartDate'),
+                "ExpiryOn": request.POST.get('PublishEndDate')
+            }
+
+            print(publish_data)
+
+            deal_res = requests.post('http://13.233.211.102/masters/api/insert_deal_and_publish_details/',json={'deal':deal_data,'publish':publish_data})
+            print(deal_res.text)
+            if(deal_res.json().get('message_code')==1000):
+                response_data = deal_res.json().get('message_data')
+                print(response_data)
+            
+                # Check which image was uploaded
+                if deal_mobile_image:
+                    print("Mobile URL image uploaded")
+                    # Path to save the image (directly specifying the path)
+                    img_directory = 'staticfiles/assets/Deal_images'
+                    
+                    # Ensure the directory exists
+                    os.makedirs(img_directory, exist_ok=True)
+
+                    # Rename the file with the user_id and keep the original extension
+                    new_file_name = response_data.get('mobile_url')
+                    print(new_file_name)
+                    # Saving the image with its renamed name
+                    img_path = os.path.join(img_directory, new_file_name)
+                    with open(img_path, 'wb+') as destination:
+                        for chunk in deal_mobile_image.chunks():
+                            destination.write(chunk)
+
+                    print('mobileimage uploaded successfully')
+                    # Handle the mobile image upload here
+                if deal_web_image:
+                    print("Web URL image uploaded")
+                    # Path to save the image (directly specifying the path)
+                    img_directory = 'staticfilesfiles/assets/Deal_images'
+                    
+                    # Ensure the directory exists
+                    os.makedirs(img_directory, exist_ok=True)
+
+                    # Rename the file with the user_id and keep the original extension
+                    new_file_name = response_data.get('web_url')
+                    print(new_file_name)
+                    # Saving the image with its renamed name
+                    img_path = os.path.join(img_directory, new_file_name)
+                    with open(img_path, 'wb+') as destination:
+                        for chunk in deal_web_image.chunks():
+                            destination.write(chunk)
+
+                    print('webimage uploaded successfully')
+                    # Handle the web image upload here
+                
+                category_res = requests.post('http://13.233.211.102/masters/api/insert_deal_category_links/',json={"deal_id":response_data.get('deal_id'),"publish_id":response_data.get('publish_id'),"deal_category_ids":deal_category_ids})
+                print(category_res.text)
+                messages.success(request,"Deal Details Added successfully..")
+
+            else:
+                messages.error(request,"Deal Details Not Added Please try again or contact Support Team..")
+            
+            return redirect(AddDeals)
+                
+    else:
+        return redirect(Login)
     
+
+
+def ShowAllDeals(request):
+    if(request.user.is_authenticated):
+        res = requests.get('http://13.233.211.102/masters/api/get_active_deals/')
+        print(res.text)
+        if(res.json().get('message_code')==1000):
+            allDeal = res.json().get('message_data')
+            
+        
+        else:
+            allDeal = []
+
+        return render(request,'deals/alldeal.html',{'allDeal':allDeal})
+    
+    else:
+        return redirect(Login)
+
+
+def get_deal_details(request,id):
+    if(request.user.is_authenticated):
+        print(id)
+        res = requests.post('http://13.233.211.102/masters/api/get_deal_details_by_deal_id/',json={ "deal_id":id})
+        print(res.text)
+        if(res.json().get('message_code')==1000):
+            deal_data = res.json().get('message_data')
+            category_res = requests.post('http://13.233.211.102/masters/api/get_deal_categories/')
+            print(category_res.text)
+            if(category_res.json().get('message_code')==1000):
+                categories = category_res.json().get('message_data')
+            else:
+                categories=[]
+        
+        else:
+            deal_data = []
+
+        return render(request,'deals/deal_details.html',{'deal_data':deal_data,'categories':categories})
+    
+    else:
+        return redirect(Login)
+    
+
+@csrf_exempt
+def update_deal(request):
+    if request.method == 'POST':
+        try:
+            visible_to = request.POST.getlist('options[]')
+            deal_category_ids = request.POST.getlist('categories[]')
+            print(request.POST)
+            deal_data = {
+                "Deal_id" : request.POST.get('Deal_id'),
+                "CompanyName":request.POST.get('CompanyName'),
+                "DealOwnerMobileNo":request.POST.get('DealOwnerMobileNo'),
+                "DealOwnerPersonName":request.POST.get('DealOwnerPersonName'),
+                "DealMedicalNonMedical":int(request.POST.get('DealMedicalNonMedical')),
+                "DealTitle": request.POST.get('DealTitle'),
+                "DealKeywords":request.POST.get('DealKeywords'),
+                "DealWebsiteURL": request.POST.get('DealWebsiteURL'),
+                "Show_to_Doctor": 1 if '1' in visible_to else 0,
+                "Show_to_Pharmacy": 1 if '2' in visible_to else 0,
+                "Show_to_Labs": 1 if '3' in visible_to else 0,
+            }
+            # Path to save the image
+            img_directory = 'staticfiles/assets/Deal_images' 
+            os.makedirs(img_directory, exist_ok=True)  # Ensure the directory exists
+            
+            # Handle mobile image upload
+            if 'DealContentImageMobile' in request.FILES:
+                mobile_image = request.FILES['DealContentImageMobile']
+                mobile_image_name = request.POST.get('mobileimagename')
+                print(mobile_image_name)
+                # Use existing image name if present, otherwise generate new name
+                if mobile_image_name == None:
+                    new_mobile_file_name = mobile_image_name
+                    print("589",new_mobile_file_name)
+                else:
+                    deal_id = request.POST.get('Deal_id')  # Assuming deal_id is passed in POST data
+                    extension = os.path.splitext(mobile_image.name)[1]
+                    new_mobile_file_name = f"{deal_id}_M{extension}"
+                    deal_data['DealContentURL_forMobile']=new_mobile_file_name
+                    print("594",new_mobile_file_name)
+                # Full path for the mobile image
+                mobile_img_path = os.path.join(img_directory, new_mobile_file_name)
+                
+                # Save mobile image
+                with open(mobile_img_path, 'wb+') as destination:
+                    for chunk in mobile_image.chunks():
+                        destination.write(chunk)
+                
+                print(f"Mobile image saved at: {mobile_img_path}")
+
+            # Handle web image upload
+            if 'DealContentImageWeb' in request.FILES:
+                web_image = request.FILES['DealContentImageWeb']
+                web_image_name = request.POST.get('webimagename')
+                print("623",web_image_name)
+                
+                # Use existing image name if present, otherwise generate new name
+                if web_image_name== None:
+                    new_web_file_name = web_image_name
+                else:
+                    deal_id = request.POST.get('Deal_id')  # Assuming deal_id is passed in POST data
+                    extension = os.path.splitext(web_image.name)[1]
+                    new_web_file_name = f"{deal_id}_W{extension}"
+                    deal_data['DealContentURL_forWeb']=new_mobile_file_name
+                    print(new_web_file_name)
+                
+                # Full path for the web image
+                web_img_path = os.path.join(img_directory, new_web_file_name)
+                
+                # Save web image
+                with open(web_img_path, 'wb+') as destination:
+                    for chunk in web_image.chunks():
+                        destination.write(chunk)
+                
+                print(f"Web image saved at: {web_img_path}")
+                
+    
+            
+            print(deal_data)
+
+            update_res = requests.post('http://13.233.211.102/masters/api/update_deal/',json=deal_data)
+            print(update_res.text)
+            # Return success response
+            category_res = requests.post('http://13.233.211.102/masters/api/insert_deal_category_links/',json={"deal_id":request.POST.get('Deal_id'),"publish_id":request.POST.get('Publish_id'),"deal_category_ids":deal_category_ids})
+            print(category_res.text)
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@csrf_exempt
+def republish_deal(request):
+    if request.method == 'POST':
+        deal_id = request.POST.get('deal_id')
+        republish_on = request.POST.get('republish_on')
+        republish_end_on = request.POST.get('republish_end_on')
+        print(request.POST)
+        # Parse dates
+        republish_on_date = datetime.datetime.strptime(republish_on, '%Y-%m-%d').date()
+        republish_end_on_date = datetime.datetime.strptime(republish_end_on, '%Y-%m-%d').date()
+        publish_data ={
+            'Deal_id':deal_id,
+            'PublishedOn':republish_on,
+            'ExpiryOn':republish_end_on
+        }
+
+        remaining_days = (republish_end_on_date - datetime.datetime.today().date()).days
+        res = requests.post('http://13.233.211.102/masters/api/insert_publish_details/',json={'publish':publish_data})
+        print(res.text)
+        return JsonResponse({
+            'success': True,
+            'new_publish_date': republish_on,
+            'new_expiry_date': republish_end_on,
+            'remaining_days': remaining_days
+        })
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+    
+def filter_deal(request):
+    if request.method == 'GET':
+        #city = request.GET.get('city')
+        company_name = request.GET.get('companyname')
+        #start_date = request.GET.get('start_date')
+        #end_date = request.GET.get('end_date')
+        visibleoptions = request.GET.get('visibleoptions')
+        if visibleoptions:
+            visible_options_str = ','.join(visibleoptions)  # Joins the list into "1,3"
+        else:
+            visible_options_str = ""
+        status = request.GET.get('status')
+        print(status,"692")
+        print(visibleoptions,"693")
+        print(company_name,"694")
+        #print(start_date,'start_date')
+        #print(end_date,'end_date')
+        data=[]
+        res=requests.post("http://13.233.211.102/masters/api/filter_deals/",json={"companyname": company_name,"status":status,"visibleoptions":visible_options_str})
+        print(res.text)
+        data=res.json().get('message_data',[])
+        print(data)
+        return JsonResponse({'deals': data})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

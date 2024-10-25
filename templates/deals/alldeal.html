@@ -1,0 +1,407 @@
+<!DOCTYPE html> 
+<html lang="en">
+{% extends "base.html" %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Deals</title>
+    {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" /> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-container {
+            width: 65%;
+            margin-top: 1px;
+            padding: 2px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            max-height: 100vh;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .form-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .navbar-brand1 {
+            color: #FFFFFF;
+            font-size: 25px;
+        }
+
+        .deal-card {
+            background-color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ff7f50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .deal-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .deal-info {
+            font-size: 16px;
+            color: #0c0c0d;
+        }
+
+        .deal-name {
+            padding-left: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            height: calc(100vh - 60px);
+        }
+
+        .search-bar {
+            width: 100%;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .filter-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .filter-container {
+            display: none;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .deal-list {
+            width: 35%;
+            max-height: 100%;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .deal-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .data-block1 {
+            border: 1px solid #ddd;
+            padding: 7px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            background-color: #A52028;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .deal-count {
+            color: #FFFFFF;
+            font-size: 25px;
+        }
+
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            height: calc(2.50rem + 2px);
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flex-container">
+        <div class="deal-list">
+            <div class="data-block1">
+                <div class="container-fluid d-flex justify-content-between align-items-center">
+                    <span class="navbar-brand1">Deals</span>
+                    <span class="deal-count">Total: {{ allDeal|length }}</span>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by name or phone number">
+                <i class="fa fa-filter filter-icon"></i>
+            </div>
+            {% include "includes/message.html" %}
+            <div class="filter-container" id="filterContainer">
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <label for="dealname" class="form-label">Company Name</label>
+                        <input type="text" id="companyname" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="visibleoptions">Visible To</label>
+                            <select id="visibleoptions" name="visibleoptions[]" class="selectpicker form-control" multiple data-live-search="true" title="Please Select the Visible to">
+                                <option value="1">Doctor</option>
+                                <option value="2">Pharmacy</option>
+                                <option value="3">Laboratory</option>
+                            </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status">Status</label>
+                            <select id="status" name="status" class=" form-control"  title="Please Select the Visible to" >
+                                <option value="">Select Status</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                    </div>
+                    {% comment %} <div class="mb-3 d-flex justify-content-between">
+                        <div class="me-2">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div>
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                    </div> {% endcomment %}
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </form>
+            </div>
+            <div id="dealCards">
+                {% for deal in allDeal %}
+                <div class="deal-card" data-deal-id="{{ deal.Deal_id }}" data-company-name = "{{deal.CompanyName}}" data-deal-phone = "{{deal.DealOwnerMobileNo}}">
+                    <div class="deal-info phone-number">{{ deal.DealOwnerMobileNo }}</div>
+                    <div class="deal-info company-name">{{ deal.CompanyName }}</div>
+                    <div class="deal-info">{{ deal.DealOwnerPersonName }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-container" id="getdealdetails" style="display: none;">
+        </div>
+    </div>
+
+    <!-- jQuery (needs to be loaded first) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function attachCardEventListeners() {
+                const dealCards = document.querySelectorAll('.deal-card');
+
+                dealCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        const dealId = this.getAttribute('data-deal-id');
+                        fetch(`/MahiAdmin/get_deal_details/${dealId}`) // Adjust URL as necessary
+                            .then(response => response.text())
+                            .then(html => {
+                                document.getElementById('getdealdetails').innerHTML = html;
+                                document.getElementById('getdealdetails').style.display = 'block';
+                                scriptcall();
+                            })
+                            .catch(error => console.error('Error fetching deal details:', error));
+                    });
+                });
+            }
+
+            function scriptcall() {
+                    $(document).ready(function () {
+                        $('.selectpicker').selectpicker(); // Initialize Bootstrap Select
+                    });   
+
+                    $('#myForm').on('submit', function(e) {
+                        e.preventDefault(); // Prevent the form from submitting the normal way
+                        var formData = new FormData(this); // Create a FormData object for file uploads
+                    
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'update_deal' %}", // Replace with your correct view URL
+                            data: formData,
+                            contentType: false,  // Required for file upload
+                            processData: false,  // Required for file upload
+                            success: function(response) {
+                                if (response.success) {
+                                    alert('Deal details updated successfully!');
+                                } else {
+                                    alert('Error updating deal details: ' + response.error);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                alert('An error occurred: ' + error);
+                            },
+                            beforeSend: function() {
+                                // Optionally show a loader
+                                $('.btn').prop('disabled', true); // Disable the submit button to prevent duplicate submissions
+                            },
+                            complete: function() {
+                                // Re-enable the button when the request is complete
+                                $('.btn').prop('disabled', false);
+                            }
+                        });
+                    });   
+                    
+                    $(document).ready(function() {
+                        $('#republishBtn').on('click', function() {
+                            const republishOn = document.getElementById("republish_on").value;
+                            const republishEndOn = document.getElementById("republish_end_on").value;
+                            const dealId =document.getElementById("Deal_id").value; // assuming you have deal_id available
+                    
+                            if (!republishOn || !republishEndOn) {
+                                alert("Please select both dates.");
+                                return;
+                            }
+                    
+                            $.ajax({
+                                url: "{% url 'republish_deal' %}",  // Replace 'republish_deal' with your actual view URL name
+                                type: "POST",
+                                data: {
+                                    republish_on: republishOn,
+                                    republish_end_on: republishEndOn,
+                                    deal_id: dealId,
+                                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                                },
+                                success: function(response) {
+                                    if (response.success) {
+                                        $('#republishMessage').css('display', 'block').text("Republished successfully.");
+                    
+                                        // Update fields with new republish data
+                                        $(".republish-card").html(`
+                                            <p>Published On: ${response.new_publish_date}</p>
+                                            <p>Expiry On: ${response.new_expiry_date}</p>
+                                            <p>Remaining Days: ${response.remaining_days}</p>
+                                            <p>Status: Active</p>
+                                        `);
+                    
+                                        //$(".republish-card").hide();  // Hide republish fields after success
+                                    } else {
+                                        $('#republishMessage').css('display', 'block').text("Republish failed. Please try again.");
+                                    }
+                                },
+                                error: function() {
+                                    $('#republishMessage').css('display', 'block').text("An error occurred. Please try again.");
+                                }
+                            });
+                        });
+                    });
+                    
+            }
+
+            
+
+            function applySearchFilter() {
+                const searchInput = document.getElementById('searchInput');
+                const filter = searchInput.value.toLowerCase();
+                const dealCards = document.querySelectorAll('.deal-card');
+
+                dealCards.forEach(card => {
+                    const name = card.getAttribute('data-company-name').toLowerCase();
+                    const phone = card.getAttribute('data-deal-phone').toLowerCase();
+
+                    if (name.includes(filter) || phone.includes(filter)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', applySearchFilter);
+
+            const filterIcon = document.querySelector('.filter-icon');
+            filterIcon.addEventListener('click', function() {
+                const filterContainer = document.getElementById('filterContainer');
+                $(filterContainer).slideToggle();
+            });
+
+            const filterForm = document.getElementById('filterForm');
+            filterForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                applyFilters();
+            });
+
+            function applyFilters() {
+                const companyname = document.getElementById('companyname').value;
+                const status = document.getElementById('status').value;
+
+                //const startDate = document.getElementById('startDate').value;
+                //const endDate = document.getElementById('endDate').value;
+                // Collect selected options for 'visibleoptions'
+                const visibleOptionsElement = document.getElementById('visibleoptions');
+                const visibleoptions = Array.from(visibleOptionsElement.selectedOptions).map(option => option.value);
+
+
+                $.ajax({
+                    url: '{% url "filter_deal" %}', // Adjust the URL as necessary
+                    data: {
+                        companyname: companyname,
+                        status:status,
+                        //start_date: startDate,
+                        //end_date: endDate,
+                        visibleoptions :JSON.stringify(visibleoptions) // Send as JSON string
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        const deals = data.deals;
+                        let dealCardsHtml = '';
+
+                        if (deals.length === 0) {
+                            dealCardsHtml = '<div class="message-card">No deals found</div>';
+                        } else {
+                            deals.forEach(deal => {
+                                dealCardsHtml += `
+                                    <div class="deal-card" data-deal-id="${deal.Deal_id}" data-company-name="${deal.CompanyName}" data-deal-phone="${deal.DealOwnerMobileNo}">
+                                        <div class="deal-info phone-number">${deal.DealOwnerMobileNo}</div>
+                                        <div class="deal-info company-name">${deal.CompanyName}</div>
+                                        <div class="deal-info">${deal.DealOwnerPersonName }</div>
+                                    </div>
+                                `;
+                            });
+                        }
+
+                        document.getElementById('dealCards').innerHTML = dealCardsHtml;
+                        attachCardEventListeners();
+                        applySearchFilter();
+                    },
+                    error: function(error) {
+                        console.error('Error fetching filtered deals:', error);
+                    }
+                });
+            }
+
+            attachCardEventListeners();
+        });
+    </script>
+</body>
+{% endblock %}
+</html>

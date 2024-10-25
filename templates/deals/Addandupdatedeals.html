@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "base.html" %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add and Update Deal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+        .form-container {
+            margin: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        @media (min-width: 768px) {
+            .form-container {
+                max-width: 80%;
+                margin: 20px auto;
+            }
+        }
+        @media (min-width: 992px) {
+            .form-container {
+                max-width: 60%;
+                margin: 20px auto;
+            }
+        }
+        @media (min-width: 1200px) {
+            .form-container {
+                max-width: 50%;
+                margin: 30px auto;
+                margin-top: 0;
+            }
+        }
+
+        .data-block1 {
+            border: 1px solid #ddd;
+            padding: 7px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            background-color: #A52028;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        /* Full-page overlay */
+        .loader-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Loader (spinner) */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Spin animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader (hidden initially) -->
+    <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+        <div class="loader"></div>
+    </div>
+    <div class="container">
+        {% include "includes/message.html" %}
+        <div class="form-container">
+            <div class="data-block1 mb-3">
+                <div class="container-fluid d-flex justify-content-between align-items-center">
+                    <span style="color:white;">Add Deal</span>
+                </div>
+            </div>
+            <form id="myForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- First Row: Company Name and Website URL -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {% comment %} <label for="CompanyName">Company Name</label> {% endcomment %}
+                        <input type="text" class="form-control" id="CompanyName" name="CompanyName" placeholder="Company Name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {% comment %} <label for="DealWebsiteURL">Website URL</label> {% endcomment %}
+                        <input type="url" class="form-control" id="DealWebsiteURL" name="DealWebsiteURL" placeholder="Website URL" placeholder="Website URL" required>
+                    </div>
+                </div>
+
+                <!-- Second Row: Owner Name and Mobile Number -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {% comment %} <label for="DealOwnerPersonName">Owner Name</label> {% endcomment %}
+                        <input type="text" class="form-control" id="DealOwnerPersonName" name="DealOwnerPersonName" placeholder="Owner Name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {% comment %} <label for="DealOwnerMobileNo">Mobile Number</label> {% endcomment %}
+                        <input type="tel" class="form-control" id="DealOwnerMobileNo" name="DealOwnerMobileNo" placeholder="Mobile Number" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" required>
+                    </div>
+                </div>
+
+                <!-- Third Row: Deal Title and Medical/Non-Medical -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {% comment %} <label for="DealTitle">Deal Title</label> {% endcomment %}
+                        <input type="text" class="form-control" id="DealTitle" name="DealTitle" placeholder="Deal Title" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {% comment %} <label for="DealMedicalNonMedical">Select Deal Medical/Non-Medical</label> {% endcomment %}
+                        <select class="form-select" id="DealMedicalNonMedical" name="DealMedicalNonMedical" required>
+                            <option value="" disabled selected hidden>Select Deal Medic/Non-Medic</option>
+                            <option value="1">Medical</option>
+                            <option value="2">Non-Medical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Fourth Row: Deal Keywords -->
+                <div class="mb-4">
+                    {% comment %} <label for="DealKeywords">Keywords</label> {% endcomment %}
+                    <textarea class="form-control" id="DealKeywords" name="DealKeywords" rows="2" placeholder="Keywords" required></textarea>
+                </div>
+
+                <!-- Fifth Row: Upload Mobile and Web Image -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="DealContentImageMobile">Upload Mobile URL Image</label>
+                        <input type="file" class="form-control" id="DealContentImageMobile" name="DealContentImageMobile" accept="image/*">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="DealContentImageWeb">Upload Web URL Image</label>
+                        <input type="file" class="form-control" id="DealContentImageWeb" name="DealContentImageWeb" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Sixth Row: Visible To and Category -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="options">Visible To</label>
+                        <select id="options" name="options[]" class="selectpicker form-control" multiple data-live-search="true" title="Please Select the Visible to" required>
+                            <option selected value="1">Doctor</option>
+                            <option selected value="2">Pharmacy</option>
+                            <option  selected value="3">Laboratory</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="categories">Category</label>
+                        <select id="categories" name="categories[]" class="selectpicker form-control" multiple data-live-search="true" title="Please Select a Category" required>
+                            {%for category in categories %}
+                                <option value="{{category.DealCategory_id}}">{{category.CategoryName}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Seventh Row: Publish Start and End Date -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label for="PublishStartDate">Publish Start Date</label>
+                        <input type="date" class="form-control" id="PublishStartDate" name="PublishStartDate" required>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label for="PublishEndDate">Publish End Date</label>
+                        <input type="date" class="form-control" id="PublishEndDate" name="PublishEndDate" required>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="mb-3 text-center">
+                    <button type="submit" class="btn btn-primary">Submit Deal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.selectpicker').selectpicker();  // Initialize Bootstrap selectpicker
+        });
+    </script>
+
+    <script>
+        // Handle form submission
+        $('#myForm').on('submit', function(e) {
+            $('.btn').prop('disabled', true); // Disable the save button
+            document.getElementById('loaderOverlay').style.display = 'flex';
+        });
+    </script> 
+
+    
+</body>
+{% endblock content %}
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Poppins', sans-serif;
+        }
+        .navbar-brand1 {
+            color: #FFFFFF;
+            font-size: 25px;
+        }
+         
+        .deal-profile-card, .clinic-profile-card, .stats-card, .users-card1 , .republish-card {
+            background-color: white;
+            padding: 10px; /* Increased padding for more space inside the card */
+            margin-bottom: 10px; /* Increased margin for better spacing between cards */
+            border-radius: 8px; /* Slightly more rounded corners */
+            border: 1px solid #ff7f50; /* Added a colored border */
+            
+            /* Enhanced shadow effect */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+            
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #A52028;
+            color: white;
+            border: none;
+        }
+        .nav-tabs .nav-link {
+            color: #A52028;
+        }
+        #messageBox {
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .users-card1 {
+        display: flex;
+        flex-direction: column; /* Change direction to column for vertical stacking */
+        align-items: center;
+        justify-content: center;
+        gap: 20px; /* Adds space between the image blocks */
+        }
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%; /* Ensures the image container takes full width */
+        }
+        .image-container img {
+            max-width: 100%;
+            width: 200px; /* Adjust this size as needed */
+            height: auto;
+            margin-bottom: 10px; /* Space between the image and the caption */
+        }
+        .image-caption {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .republish-card label {
+            display: block;
+            margin: 8px 0 4px;
+            font-weight: bold;
+        }
+        
+        .republish-card input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .republish-message {
+            margin-top: 10px;
+            padding: 10px;
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="data-block1 mb-3">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <a class="navbar-brand1" href="{% url 'ShowAllDeals' %}">Deal Details</a>
+                <span class="deal-count">{% if deal_data.Status == 'active' %}Expire on:{{ deal_data.ExpiryDate }}{%else%}Expired:{{ deal_data.ExpiryDate }}{%endif%}</span>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="deal-profile-tab" data-bs-toggle="tab" data-bs-target="#deal-profile" type="button" role="tab" aria-controls="deal-profile" aria-selected="true">Deal Profile</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="false">Publish Detail</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image" type="button" role="tab" aria-controls="image" aria-selected="false">Uploaded Images</button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="deal-profile" role="tabpanel" aria-labelledby="deal-profile-tab">
+                <div class="deal-profile-card">
+                    <div id="messageBox" class="alert"></div>
+                    <form id="myForm" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" id="Deal_id" name="Deal_id" value="{{deal_data.Deal_id}}">
+                        <input type="hidden" id="Publish_id" name="Publish_id" value="{{deal_data.Publish_id}}">
+                        <input type="hidden" name="webimagename" value="{{deal_data.DealContentURL_forWeb}}">
+                        <input type="hidden" name="mobileimagename" value="{{deal_data.DealContentURL_forMobile }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" class="form-control" id="CompanyName" name="CompanyName" placeholder="Company Name" value="{{ deal_data.CompanyName }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="url" class="form-control" id="DealWebsiteURL" name="DealWebsiteURL" placeholder="Website URL" value="{{ deal_data.DealWebsiteURL }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" class="form-control" id="DealOwnerPersonName" name="DealOwnerPersonName" placeholder="Owner Name" value="{{ deal_data.DealOwnerPersonName }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <input type="tel" class="form-control" id="DealOwnerMobileNo" name="DealOwnerMobileNo" placeholder="Mobile Number" pattern="[0-9]{10}" value="{{ deal_data.DealOwnerMobileNo}}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <input type="text" class="form-control" id="DealTitle" name="DealTitle" value="{{deal_data.DealTitle}}" placeholder="Deal Title" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <select class="form-select" id="DealMedicalNonMedical" name="DealMedicalNonMedical" required>
+                                    <option value="" disabled selected hidden>Select Deal Medic/Non-Medic</option>
+                                    <option value="1" {% if deal_data.DealMedicalNonMedical == 1 %} selected {%endif%}>Medical</option>
+                                    <option value="2" {% if deal_data.DealMedicalNonMedical == 2 %} selected {%endif%}>Non-Medical</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <textarea class="form-control" id="DealKeywords" name="DealKeywords" rows="2" placeholder="Keywords" required>{{deal_data.DealKeywords}}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="DealContentImageMobile">Update Mobile URL Image</label>
+                                <input type="file" class="form-control" id="DealContentImageMobile" name="DealContentImageMobile" accept="image/*">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="DealContentImageWeb">Update Web URL Image</label>
+                                <input type="file" class="form-control" id="DealContentImageWeb" name="DealContentImageWeb" accept="image/*">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="options">Visible To</label>
+                                <select id="options" name="options[]" class="selectpicker form-control" multiple data-live-search="true" title="Please Select the Visible to" required>
+                                    <option {% if deal_data.Show_to_Doctor == 1 %} selected {%endif%}value="1">Doctor</option>
+                                    <option {% if deal_data.Show_to_Pharmacy == 1 %} selected {%endif%} value="2">Pharmacy</option>
+                                    <option {% if deal_data.Show_to_Labs == 1 %} selected {%endif%} value="3">Laboratory</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="categories">Selected Category</label>
+                                <select id="categories" name="categories[]" class="selectpicker form-control" multiple data-live-search="true" title="Please Select a Category" required>
+                                    {% for category in categories %}
+                                        <option value="{{ category.DealCategory_id }}" {% if category.DealCategory_id in deal_data.DealCategoryIDs %}selected{% endif %}>
+                                            {{ category.CategoryName }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>                            
+                        </div>
+
+                        {% comment %} <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="PublishStartDate">Publish Start Date</label>
+                                <input type="date" class="form-control" id="PublishStartDate" name="PublishStartDate" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="PublishEndDate">Publish End Date</label>
+                                <input type="date" class="form-control" id="PublishEndDate" name="PublishEndDate" required>
+                            </div>
+                        </div> {% endcomment %}
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-block">Update Deal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="stats" role="tabpanel" aria-labelledby="stats-tab">
+                {% if deal_data.Status == 'active' %}
+                    <div class="stats-card">
+                        <p>Published On: {{ deal_data.PublishDate }}</p>
+                        <p>Expiry On: {{ deal_data.ExpiryDate }}</p>
+                        <p>Remaining Days: {{ deal_data.RemainingDays }}</p>
+                        <p>Status: {{ deal_data.Status }}</p>
+                    </div>
+                {% elif deal_data.Status == 'expired' %}
+                    <div class="republish-card">
+                        <p>Status: {{ deal_data.Status }}</p>
+                        <label for="republish_on">Republish On:</label>
+                        <input type="date" id="republish_on" name="republish_on" required>
+                        
+                        <label for="republish_end_on">Republish End On:</label>
+                        <input type="date" id="republish_end_on" name="republish_end_on" required>
+                        
+                        <button id="republishBtn" class="btn btn-primary">Republish</button>
+                    </div>
+                    <div id="republishMessage" class="republish-message" style="display:none;"></div>
+                {% endif %}
+            </div>
+            
+            
+    
+            <!-- <div class="tab-pane fade" id="image" role="tabpanel" aria-labelledby="image-tab">
+                <div class="users-card1">
+                    <div class="image-container text-center">
+                        <img src="http://127.0.0.1:8000/tatic/assets/Deal_images/{{deal_data.DealContentURL_forMobile}}" alt="Mobile Image">
+                        <p class="image-caption">Mobile Image</p>
+                    </div>
+                    <div class="image-container text-center">
+                        <img src="http://127.0.0.1:8000/tatic/assets/Deal_images/{{deal_data.DealContentURL_forWeb}}" alt="Web Image">
+                        <p class="image-caption">Web Image</p>
+                    </div>
+                </div>
+            </div>-->
+            <div class="tab-pane fade" id="image" role="tabpanel" aria-labelledby="image-tab">
+                <div class="users-card1">
+                    <div class="image-container text-center" 
+                         style="display: {% if deal_data.DealContentURL_forMobile %}block{% else %}none{% endif %};">
+                        <img src="http://127.0.0.1:8000/static/assets/Deal_images/{{ deal_data.DealContentURL_forMobile }}" alt="Mobile Image">
+                        <p class="image-caption">Mobile Image</p>
+                    </div>
+            
+                    <div class="image-container text-center" 
+                         style="display: {% if deal_data.DealContentURL_forWeb %}block{% else %}none{% endif %};">
+                        <img src="http://127.0.0.1:8000/static/assets/Deal_images/{{ deal_data.DealContentURL_forWeb }}" alt="Web Image">
+                        <p class="image-caption">Web Image</p>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+
+    <!-- jQuery (needs to be loaded first) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('.selectpicker').selectpicker(); // Initialize Bootstrap Select
+        });
+    </script>
+
+</body>
+</html>
+
+ 

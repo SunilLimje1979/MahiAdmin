@@ -29,6 +29,15 @@ urlpatterns = [
     path('get_laboratory_details/<int:id>',get_laboratory_details,name='get_laboratory_details'),
     path('reset_laboratorypassword/',reset_laboratorypassword,name='reset_laboratorypassword'),
     path('filter_laboratory/',filter_laboratory,name='filter_laboratory'),
+
+
+    #######################Deal########################
+    path('AddDeals/',AddDeals,name='AddDeals'),
+    path('ShowAllDeals/',ShowAllDeals,name='ShowAllDeals'),
+    path('get_deal_details/<int:id>',get_deal_details,name='get_deal_details'),
+    path('update_deal/',update_deal,name='update_deal'),
+    path('republish_deal/',republish_deal,name='republish_deal'),
+    path('filter_deal/',filter_deal,name='filter_deal'),
     
-    
+
 ]
