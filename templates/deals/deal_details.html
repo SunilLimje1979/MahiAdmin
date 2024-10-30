@@ -115,6 +115,9 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image" type="button" role="tab" aria-controls="image" aria-selected="false">Uploaded Images</button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dealstats-tab" data-bs-toggle="tab" data-bs-target="#dealstats" type="button" role="tab" aria-controls="dealstats" aria-selected="false">Stats</button>
+            </li>
         </ul>
 
         <!-- Tab Content -->
@@ -264,6 +267,14 @@
                         <p class="image-caption">Web Image</p>
                     </div>
                 </div>
+            </div>
+
+            <div class="tab-pane fade" id="dealstats" role="tabpanel" aria-labelledby="dealstats-tab">
+                <div class="stats-card">
+                    <p>Views: {{ deal_data.DealViews }}</p>
+                    <p>Likes: {{ deal_data.DealLikes}}</p>
+                    <p>Interest: {{ deal_data.DealInterests}}</p>
+                </div>    
             </div>
             
             
