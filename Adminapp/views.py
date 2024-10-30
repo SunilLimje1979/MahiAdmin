@@ -497,7 +497,7 @@ def AddDeals(request):
                 if deal_web_image:
                     print("Web URL image uploaded")
                     # Path to save the image (directly specifying the path)
-                    img_directory = 'staticfilesfiles/assets/Deal_images'
+                    img_directory = 'staticfiles/assets/Deal_images'
                     
                     # Ensure the directory exists
                     os.makedirs(img_directory, exist_ok=True)
