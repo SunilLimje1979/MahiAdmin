@@ -99,7 +99,7 @@
     <div class="container">
         <div class="data-block1 mb-3">
             <div class="container-fluid d-flex justify-content-between align-items-center">
-                <a class="navbar-brand1" href="{% url 'ShowAllDeals' %}">Deal Details</a>
+                <a class="navbar-brand1" href="{% url 'ShowAllDeals' %}"><i class="fas fa-arrow-left"></i>Deal Details</a>
                 <span class="deal-count">{% if deal_data.Status == 'active' %}Expire on:{{ deal_data.ExpiryDate }}{%else%}Expired:{{ deal_data.ExpiryDate }}{%endif%}</span>
             </div>
         </div>
