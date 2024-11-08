@@ -117,8 +117,20 @@ def get_doctor_details(request,id):
         clinic_data=0
         users=0
         stats=0
+    
+    subscribe_res = requests.post("http://13.233.211.102/masters/api/subscription_history/", json={"doctor_id":id})
+    #print(subscribe_res.text)
+
+    if(subscribe_res.json().get('message_code')==1000 or subscribe_res.json().get('message_code')==1001):
+        subscription = subscribe_res.json().get('message_data')
+        print(subscription)
+    
+    else:
+        subscription=0
+
+
         
-    return render(request,'main/doctorDetails.html',{'doctor_data':doctor_data,'clinic_data':clinic_data,'stats':stats,'users':users})
+    return render(request,'main/doctorDetails.html',{'doctor_data':doctor_data,'clinic_data':clinic_data,'stats':stats,'users':users,'subscription':subscription})
 
 
 def filter_doctors(request):
@@ -171,6 +183,77 @@ def reset_doctorpassword(request):
             response_data['message_text'] = str(e)
     
     return JsonResponse(response_data)
+
+def extend_trial(request):
+    # Get doctor_id from request (assuming it's passed as a GET or POST parameter)
+    doctor_id = request.GET.get('doctor_id') or request.POST.get('doctor_id')
+    print(doctor_id)
+
+    sub_url="http://13.233.211.102/masters/api/extend_doctor_subscription/"
+    api_data={
+                "doctor_id": doctor_id,
+                "master_subscription_id": 2, #for 30 days
+                "subscription_price": 0,
+                "subscription_tax1": 0,
+                "subscription_tax2": 0,
+                "subscription_amount": 0,
+                "subscription_paid_amount": 0,
+                "subscription_discount_amount": 0,
+                "subscription_discount_type": 1,
+                "subscription_promo_code": "PROMO345",
+                "subscription_type": 3,
+            }
+    res=requests.post(sub_url,json=api_data)
+    print(res.text)
+    
+    if (res.json().get('message_code')==1000):
+        return JsonResponse({'success': True, 'message': 'Trial period successfully extended by 30 days.'})
+
+    else:
+        return JsonResponse({'success': False, 'message': 'Unable to Extend Try again or contact support'})
+    
+
+    #return JsonResponse({'success': True, 'message': 'Trial period successfully extended by 30 days.'})
+
+
+@csrf_exempt
+def paid_subscription(request):
+    if request.method == "POST":
+        doctor_id = request.POST.get("doctor_id")
+        subscription_amount = request.POST.get("subscription_amount")
+        subscription_billing_name = request.POST.get("subscription_billing_name")
+        print(request.POST)
+        response_data = {"success": False, "message": "An error occurred."}
+        sub_url="http://13.233.211.102/masters/api/extend_doctor_subscription/"
+        api_data={
+                    "doctor_id": doctor_id,
+                    "master_subscription_id": 5, #for 1 year 
+                    "subscription_price": 0,
+                    "subscription_tax1": 0,
+                    "subscription_tax2": 0,
+                    "subscription_amount": 0,
+                    "subscription_paid_amount": subscription_amount,
+                    "subscription_billing_name": subscription_billing_name,
+                    "subscription_discount_amount": 0,
+                    "subscription_discount_type": 1,
+                    "subscription_promo_code": "PROMO345",
+                    "subscription_type": 3,
+                }
+        res=requests.post(sub_url,json=api_data)
+        print(res.text)
+        
+        if(res.json().get('message_code')==1000):
+            response_data["success"] = True
+            response_data["message"] = "Subscription extended successfully."
+        
+        else:
+            response_data["success"] = False
+            response_data["message"] = "Error Occured Please try again or contact support"
+
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
 
 

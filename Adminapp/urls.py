@@ -13,6 +13,8 @@ urlpatterns = [
     path('get_doctor_details/<int:id>',get_doctor_details,name='get_doctor_details'),
     path('filter_doctors/',filter_doctors, name='filter_doctors'),
     path('reset_doctorpassword/',reset_doctorpassword,name='reset_doctorpassword'),
+    path('extend_trial/',extend_trial,name='extend_trial'),
+    path('paid_subscription/',paid_subscription,name='paid_subscription'),
 
     ###################CRM#################################
     path('allcrmuser/',allcrmuser,name='allcrmuser'),

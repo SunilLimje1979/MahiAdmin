@@ -78,6 +78,9 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="reset-tab" data-bs-toggle="tab" data-bs-target="#reset" type="button" role="tab" aria-controls="reset" aria-selected="false">Password Reset</button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="subscribe-tab" data-bs-toggle="tab" data-bs-target="#subscribe" type="button" role="tab" aria-controls="subscribe" aria-selected="false">Subscription Details</button>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="doctor-profile" role="tabpanel" aria-labelledby="doctor-profile-tab">
@@ -139,6 +142,66 @@
                     <button class="btn btn-success mt-3 w-100">Reset Password</button> 
                 </div> 
             </div>
+            <!-- <div class="tab-pane fade" id="subscribe" role="tabpanel" aria-labelledby="subscribe">
+                <div class="users-card1">
+                     
+                </div> 
+            </div> -->
+            <div class="tab-pane fade" id="subscribe" role="tabpanel" aria-labelledby="subscribe">
+                <div class="users-card1">
+                    <!-- Subscription Details -->
+                    <h4>Subscription Details</h4>
+                    
+                    <!-- Status -->
+                    <p><strong>Status:</strong> {{ subscription.status }}</p>
+                    
+                    <!-- Start Date -->
+                    <p><strong>Subscription Start On:</strong> {{ subscription.subscription_start_on }}</p>
+                    
+                    <!-- End Date -->
+                    <p><strong>Subscription End On:</strong> {{ subscription.subscription_end_on }}</p>
+                    
+                    <!-- Current Date and Time -->
+                    <!-- <p><strong>Current Date and Time:</strong> {{ subscription.current_datetime }}</p> -->
+                    
+                    <!-- Remaining Days -->
+                    <p><strong>Remaining Days:</strong> {{ subscription.remaining_days }}</p>
+                    
+                    <!-- Subscription History Count -->
+                    <p><strong>Subscription Count:</strong> {{ subscription.subscription_history_count }}</p>
+                    
+                    <!-- Extend Trial Button -->
+                    <div style="text-align: right;">
+                        <button id="extend-trial-btn" style="background-color: #007bff; color: white; padding: 10px 15px; border: none; cursor: pointer;">Extend Trial by 30 Days</button>
+                        <button id="paid-subscription-btn" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; cursor: pointer; margin-left: 10px;">Paid Subscription</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paid Subscription Modal -->
+            <div id="paidSubscriptionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
+                <div style="position: relative; width: 400px; margin: 10% auto; padding: 20px; background-color: white; border-radius: 8px;">
+                    <h4>Paid Subscription</h4>
+                    
+                    <!-- Form Fields -->
+                    <form id="paidSubscriptionForm">
+                        <div>
+                            <label for="subscription_amount">Subscription Amount:</label>
+                            <input type="number" id="subscription_amount" name="subscription_amount" required style="width: 100%; padding: 8px; margin: 8px 0;">
+                        </div>
+                        <div>
+                            <label for="subscription_billing_name">Billing Name:</label>
+                            <input type="text" id="subscription_billing_name" name="subscription_billing_name" required style="width: 100%; padding: 8px; margin: 8px 0;">
+                        </div>
+                        <div style="text-align: right;">
+                            <button type="button" id="closeModal" style="background-color: #ccc; padding: 10px 15px; border: none; cursor: pointer; margin-right: 10px;">Close</button>
+                            <button type="submit" id="paid-btn" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; cursor: pointer;">Paid</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            
         </div>
     </div>
 

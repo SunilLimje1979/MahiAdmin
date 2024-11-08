@@ -308,6 +308,80 @@
                 .catch(error => console.error('Error:', error));
             });
 
+            
+            // Handle "Extend Trial by 30 Days" button click
+            document.getElementById("extend-trial-btn").addEventListener("click", function() {
+                // Show confirmation dialog
+                if (confirm("Are you sure you want to extend the trial period by 30 days?")) {
+                    // Proceed with AJAX request if user confirms
+                    $.ajax({
+                        url: "{% url 'extend_trial' %}",  // Replace 'extend_trial' with the actual URL name of your view
+                        type: "POST",
+                        data: {
+                            doctor_id:document.getElementById('doctor_id').value,  // Ensure doctor_id is passed from context
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert("Successfully extended the trial period by 30 days.");
+                                // Optional: reload page or update displayed end date and remaining days
+                                location.reload();
+                            } else {
+                                alert("Failed to extend the trial period. Please try again.");
+                            }
+                        },
+                        error: function() {
+                            alert("An error occurred. Please try again.");
+                        }
+                    });
+                } 
+            });
+
+
+            // Show Paid Subscription Modal
+            document.getElementById("paid-subscription-btn").addEventListener("click", function() {
+                document.getElementById("paidSubscriptionModal").style.display = "block";
+            });
+
+            // Close Modal
+            document.getElementById("closeModal").addEventListener("click", function() {
+                document.getElementById("paidSubscriptionModal").style.display = "none";
+            });
+
+            // Handle Paid Subscription Form Submission
+            document.getElementById("paidSubscriptionForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+                
+                // Collect form data
+                var subscription_amount = document.getElementById("subscription_amount").value;
+                var subscription_billing_name = document.getElementById("subscription_billing_name").value;
+                
+                // AJAX request to submit the form data
+                $.ajax({
+                    url: "{% url 'paid_subscription' %}",
+                    type: "POST",
+                    data: {
+                        doctor_id: document.getElementById('doctor_id').value,
+                        subscription_amount: subscription_amount,
+                        subscription_billing_name: subscription_billing_name,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            alert("Subscription extended successfully.");
+                            document.getElementById("paidSubscriptionModal").style.display = "none"; // Close modal
+                            location.reload();
+                        } else {
+                            alert("Failed to extend the subscription. Please try again.");
+                        }
+                    },
+                    error: function() {
+                        alert("An error occurred. Please try again.");
+                    }
+                });
+            });
+                        
+
         }
 
         function applySearchFilter() {
