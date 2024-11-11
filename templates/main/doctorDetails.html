@@ -154,6 +154,14 @@
                     
                     <!-- Status -->
                     <p><strong>Status:</strong> {{ subscription.status }}</p>
+
+                    <!-- Subscription type -->
+                    <p><strong>Subscription Type:</strong> {{ subscription.subscription_type}}</p>
+
+                    <!-- Subscription Amount Paid -->
+                    {% if subscription.subscription_paid_amount %}
+                        <p><strong>Subscription Paid Amount:</strong> {{ subscription.subscription_paid_amount}} &#8377;</p>
+                    {%endif%}
                     
                     <!-- Start Date -->
                     <p><strong>Subscription Start On:</strong> {{ subscription.subscription_start_on }}</p>
