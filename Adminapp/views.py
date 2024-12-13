@@ -11,6 +11,12 @@ import os
 from time import time
 
 # Create your views here.
+# Create a session object and configure it globally
+session = requests.Session()
+session.verify = False  # Disable SSL verification
+#so while integrating api instead of session.post() use session.post(api_url,parameter)
+#if ssl verification is proper then comment this logic and replace again(session to session) session.post(api_url,parameter) with session.post(api_url,parameter)
+
 
 def hello(request):
     return HttpResponse("Hello Admin...")
@@ -65,13 +71,13 @@ def Logout(request):
 
 def allRegistered(request):
     if(request.user.is_authenticated):
-        url="http://13.233.211.102/doctor/api/fetch_doctors/"
-        res=requests.post(url)
+        url="https://mahi-durg.app/doctor/api/fetch_doctors/"
+        res=session.post(url)
         # print(res.text)
         if(res.json().get('message_code')==1000):
             all_doctors=res.json().get('message_data')
             print(all_doctors)
-            city_response = requests.post("http://13.233.211.102/masters/api/get_cities_by_state_id/",json={"state_id":22})
+            city_response = session.post("https://mahi-durg.app/masters/api/get_cities_by_state_id/",json={"state_id":22})
             cities = (city_response.json().get("message_data", [])).get('cities',[])
             #print(cities)
             # return render(request,'main/allRegistered.html',{'all_doctors':all_doctors})
@@ -83,8 +89,8 @@ def allRegistered(request):
 def get_doctor_details(request,id):
     print(id)
 
-    api_url="http://13.233.211.102/doctor/api/get_doctor_by_id/"
-    response=requests.post(api_url,json={'doctor_id':id})
+    api_url="https://mahi-durg.app/doctor/api/get_doctor_by_id/"
+    response=session.post(api_url,json={'doctor_id':id})
     data=response.json().get("message_data",{})
     print(data)
     # Convert epoch timestamp to formatted date
@@ -98,18 +104,18 @@ def get_doctor_details(request,id):
     doctor_data=data[0]
     print(data)
 
-    stat_res=requests.post("http://13.233.211.102/doctor/api/doctors_stats/",json={'doctor_id':id})
+    stat_res=session.post("https://mahi-durg.app/doctor/api/doctors_stats/",json={'doctor_id':id})
     print(stat_res.text)
     if(stat_res.json().get('message_code')==1000):
         stats=stat_res.json().get('message_data')
         print(stats)
         user_data = {"location_id":stats['location_id']}
-        user_url = 'http://13.233.211.102/doctor/api/get_all_users_by_location/'
-        user_response = requests.post(user_url,json=user_data)
+        user_url = 'https://mahi-durg.app/doctor/api/get_all_users_by_location/'
+        user_response = session.post(user_url,json=user_data)
         users=user_response.json().get('message_data', {})
         print(users)
-        clinic_url="http://13.233.211.102/doctor/api/get_all_doctor_location/"
-        response=requests.post(clinic_url,json={"doctor_location_id":stats['location_id']})
+        clinic_url="https://mahi-durg.app/doctor/api/get_all_doctor_location/"
+        response=session.post(clinic_url,json={"doctor_location_id":stats['location_id']})
         clinic_data=(response.json().get("message_data",{}))[0]
         print(clinic_data)
     
@@ -118,7 +124,7 @@ def get_doctor_details(request,id):
         users=0
         stats=0
     
-    subscribe_res = requests.post("http://13.233.211.102/masters/api/subscription_history/", json={"doctor_id":id})
+    subscribe_res = session.post("https://mahi-durg.app/masters/api/subscription_history/", json={"doctor_id":id})
     #print(subscribe_res.text)
 
     if(subscribe_res.json().get('message_code')==1000 or subscribe_res.json().get('message_code')==1001):
@@ -142,7 +148,7 @@ def filter_doctors(request):
         print(start_date,'start_date')
         print(end_date,'end_date')
         data=[]
-        res=requests.post("http://13.233.211.102/doctor/api/fillter_doctors/",json={"city_id": city,"start_date":start_date,"end_date":end_date})
+        res=session.post("https://mahi-durg.app/doctor/api/fillter_doctors/",json={"city_id": city,"start_date":start_date,"end_date":end_date})
         data=res.json().get('message_data',[])
         print(data)
         return JsonResponse({'doctors': data})
@@ -164,7 +170,7 @@ def reset_doctorpassword(request):
             print(doctor_id,new_password)
             
             #Call the external API to reset the password
-            api_response = requests.post('http://13.233.211.102/medicalrecord/api/reset_doctor_password/', json={
+            api_response = session.post('https://mahi-durg.app/medicalrecord/api/reset_doctor_password/', json={
                 'doctor_id': doctor_id,
                 'new_password': new_password
             })
@@ -189,7 +195,7 @@ def extend_trial(request):
     doctor_id = request.GET.get('doctor_id') or request.POST.get('doctor_id')
     print(doctor_id)
 
-    sub_url="http://13.233.211.102/masters/api/extend_doctor_subscription/"
+    sub_url="https://mahi-durg.app/masters/api/extend_doctor_subscription/"
     api_data={
                 "doctor_id": doctor_id,
                 "master_subscription_id": 2, #for 30 days
@@ -203,7 +209,7 @@ def extend_trial(request):
                 "subscription_promo_code": "PROMO345",
                 "subscription_type": 3,
             }
-    res=requests.post(sub_url,json=api_data)
+    res=session.post(sub_url,json=api_data)
     print(res.text)
     
     if (res.json().get('message_code')==1000):
@@ -224,7 +230,7 @@ def paid_subscription(request):
         subscription_billing_name = request.POST.get("subscription_billing_name")
         print(request.POST)
         response_data = {"success": False, "message": "An error occurred."}
-        sub_url="http://13.233.211.102/masters/api/extend_doctor_subscription/"
+        sub_url="https://mahi-durg.app/masters/api/extend_doctor_subscription/"
         api_data={
                     "doctor_id": doctor_id,
                     "master_subscription_id": 5, #for 1 year 
@@ -239,7 +245,7 @@ def paid_subscription(request):
                     "subscription_promo_code": "PROMO345",
                     "subscription_type": 3,
                 }
-        res=requests.post(sub_url,json=api_data)
+        res=session.post(sub_url,json=api_data)
         print(res.text)
         
         if(res.json().get('message_code')==1000):
@@ -259,9 +265,9 @@ def paid_subscription(request):
 
 def allcrmuser(request):
     if(request.user.is_authenticated):
-        api_url_users = "http://13.233.211.102/masters/api/get_all_Authusers/"
+        api_url_users = "https://mahi-durg.app/masters/api/get_all_Authusers/"
         allusers = []
-        response_users = requests.post(api_url_users)
+        response_users = session.post(api_url_users)
         response_data_users = response_users.json()
         allusers = response_data_users.get('message_data', [])
         print(allusers)
@@ -273,7 +279,7 @@ def allcrmuser(request):
 
 def get_crmuser_details(request,id):
     print(id)
-    res = requests.post('http://13.233.211.102/masters/api/get_crmuser_details/',json={'lead_by_id':id})
+    res = session.post('https://mahi-durg.app/masters/api/get_crmuser_details/',json={'lead_by_id':id})
     if(res.json().get('message_code')==1000):
         data = res.json().get('message_data')
         print(data)
@@ -287,7 +293,7 @@ def get_crmuser_details(request,id):
 
 def allpharmacist(request):
     if(request.user.is_authenticated):
-        res=requests.get('http://13.233.211.102/medicalrecord/api/allPharmacist/')
+        res=session.get('https://mahi-durg.app/medicalrecord/api/allPharmacist/')
         print(res.text)
         if(res.json().get('message_code')==1000):
             all_pharmacies = res.json().get('message_data')
@@ -303,7 +309,7 @@ def allpharmacist(request):
 
 def get_pharmacy_details(request,id):
     print(id)
-    pharmacy_res = requests.post('http://13.233.211.102/medicalrecord/api/get_pharmacist_by_id/',json={'pharmacist_id':id})
+    pharmacy_res = session.post('https://mahi-durg.app/medicalrecord/api/get_pharmacist_by_id/',json={'pharmacist_id':id})
     print(pharmacy_res.text)
     if(pharmacy_res.json().get('message_code')==1000):
         pharmacy_data = pharmacy_res.json().get('message_data')
@@ -311,7 +317,7 @@ def get_pharmacy_details(request,id):
     else:
         pharmacy_data=[]
 
-    stats_res = requests.post('http://13.233.211.102/medicalrecord/api/get_pharmacist_stats/',json={'pharmacist_id':id})
+    stats_res = session.post('https://mahi-durg.app/medicalrecord/api/get_pharmacist_stats/',json={'pharmacist_id':id})
     #print(stats_res.text)
 
     if(stats_res.json().get('message_code')==1000):
@@ -320,7 +326,7 @@ def get_pharmacy_details(request,id):
     else:
         stats=[]
 
-    doctor_res = requests.post('http://13.233.211.102/medicalrecord/api/get_pharmacist_doctor_bypharmacistid/',json={'pharmacist_id':id})
+    doctor_res = session.post('https://mahi-durg.app/medicalrecord/api/get_pharmacist_doctor_bypharmacistid/',json={'pharmacist_id':id})
     print(doctor_res.text)
 
     if(doctor_res.json().get('message_code')==1000):
@@ -347,7 +353,7 @@ def reset_pharmacistpassword(request):
             print(pharmacist_id,new_password)
             
             #Call the external API to reset the password
-            api_response = requests.post('http://13.233.211.102/medicalrecord/api/reset_pharmacist_password/', json={
+            api_response = session.post('https://mahi-durg.app/medicalrecord/api/reset_pharmacist_password/', json={
                 'pharmacist_id': pharmacist_id,
                 'new_password': new_password
             })
@@ -378,7 +384,7 @@ def filter_pharamcist(request):
         print(start_date,'start_date')
         print(end_date,'end_date')
         data=[]
-        res=requests.post("http://13.233.211.102/medicalrecord/api/fillter_pharmacists/",json={"doctor_name": doctor_name,"start_date":start_date,"end_date":end_date})
+        res=session.post("https://mahi-durg.app/medicalrecord/api/fillter_pharmacists/",json={"doctor_name": doctor_name,"start_date":start_date,"end_date":end_date})
         print(res.text)
         data=res.json().get('message_data',[])
         print(data)
@@ -394,7 +400,7 @@ def filter_pharamcist(request):
 
 def allLaboratory(request):
     if(request.user.is_authenticated):
-        res=requests.get('http://13.233.211.102/medicalrecord/api/allLaboratory/')
+        res=session.get('https://mahi-durg.app/medicalrecord/api/allLaboratory/')
         print(res.text)
         if(res.json().get('message_code')==1000):
             all_laboratory = res.json().get('message_data')
@@ -410,7 +416,7 @@ def allLaboratory(request):
 
 def get_laboratory_details(request,id):
     print(id)
-    laboratory_res = requests.post('http://13.233.211.102/medicalrecord/api/get_laboratory_by_id/',json={'laboratory_id':id})
+    laboratory_res = session.post('https://mahi-durg.app/medicalrecord/api/get_laboratory_by_id/',json={'laboratory_id':id})
     print(laboratory_res.text)
     if(laboratory_res.json().get('message_code')==1000):
         laboratory_data = laboratory_res.json().get('message_data')
@@ -418,7 +424,7 @@ def get_laboratory_details(request,id):
     else:
         laboratory_data=[]
 
-    stats_res = requests.post('http://13.233.211.102/medicalrecord/api/get_laboratory_stats/',json={'laboratory_id':id})
+    stats_res = session.post('https://mahi-durg.app/medicalrecord/api/get_laboratory_stats/',json={'laboratory_id':id})
     #print(stats_res.text)
 
     if(stats_res.json().get('message_code')==1000):
@@ -427,7 +433,7 @@ def get_laboratory_details(request,id):
     else:
         stats=[]
 
-    doctor_res = requests.post('http://13.233.211.102/medicalrecord/api/get_laboratory_doctor_bylaboratoryid/',json={'laboratory_id':id})
+    doctor_res = session.post('https://mahi-durg.app/medicalrecord/api/get_laboratory_doctor_bylaboratoryid/',json={'laboratory_id':id})
     print(doctor_res.text)
 
     if(doctor_res.json().get('message_code')==1000):
@@ -454,7 +460,7 @@ def reset_laboratorypassword(request):
             print(laboratory_id,new_password)
             
             #Call the external API to reset the password
-            api_response = requests.post('http://13.233.211.102/medicalrecord/api/reset_laboratory_password/', json={
+            api_response = session.post('https://mahi-durg.app/medicalrecord/api/reset_laboratory_password/', json={
                 'laboratory_id': laboratory_id,
                 'new_password': new_password
             })
@@ -486,7 +492,7 @@ def filter_laboratory(request):
         print(start_date,'start_date')
         print(end_date,'end_date')
         data=[]
-        res=requests.post("http://13.233.211.102/medicalrecord/api/fillter_laboratories/",json={"doctor_name": doctor_name,"start_date":start_date,"end_date":end_date})
+        res=session.post("https://mahi-durg.app/medicalrecord/api/fillter_laboratories/",json={"doctor_name": doctor_name,"start_date":start_date,"end_date":end_date})
         data=res.json().get('message_data',[])
         print(data)
         return JsonResponse({'labs': data})
@@ -498,7 +504,7 @@ def filter_laboratory(request):
 def AddDeals(request):
     if(request.user.is_authenticated):
         if(request.method=='GET'):
-            category_res = requests.post('http://13.233.211.102/masters/api/get_deal_categories/')
+            category_res = session.post('https://mahi-durg.app/masters/api/get_deal_categories/')
             print(category_res.text)
             if(category_res.json().get('message_code')==1000):
                 categories = category_res.json().get('message_data')
@@ -551,7 +557,7 @@ def AddDeals(request):
 
             print(publish_data)
 
-            deal_res = requests.post('http://13.233.211.102/masters/api/insert_deal_and_publish_details/',json={'deal':deal_data,'publish':publish_data})
+            deal_res = session.post('https://mahi-durg.app/masters/api/insert_deal_and_publish_details/',json={'deal':deal_data,'publish':publish_data})
             print(deal_res.text)
             if(deal_res.json().get('message_code')==1000):
                 response_data = deal_res.json().get('message_data')
@@ -597,7 +603,7 @@ def AddDeals(request):
                     print('webimage uploaded successfully')
                     # Handle the web image upload here
                 
-                category_res = requests.post('http://13.233.211.102/masters/api/insert_deal_category_links/',json={"deal_id":response_data.get('deal_id'),"publish_id":response_data.get('publish_id'),"deal_category_ids":deal_category_ids})
+                category_res = session.post('https://mahi-durg.app/masters/api/insert_deal_category_links/',json={"deal_id":response_data.get('deal_id'),"publish_id":response_data.get('publish_id'),"deal_category_ids":deal_category_ids})
                 print(category_res.text)
                 messages.success(request,"Deal Details Added successfully..")
 
@@ -613,7 +619,7 @@ def AddDeals(request):
 
 def ShowAllDeals(request):
     if(request.user.is_authenticated):
-        res = requests.get('http://13.233.211.102/masters/api/get_active_deals/')
+        res = session.get('https://mahi-durg.app/masters/api/get_active_deals/')
         print(res.text)
         if(res.json().get('message_code')==1000):
             allDeal = res.json().get('message_data')
@@ -631,11 +637,11 @@ def ShowAllDeals(request):
 def get_deal_details(request,id):
     if(request.user.is_authenticated):
         print(id)
-        res = requests.post('http://13.233.211.102/masters/api/get_deal_details_by_deal_id/',json={ "deal_id":id})
+        res = session.post('https://mahi-durg.app/masters/api/get_deal_details_by_deal_id/',json={ "deal_id":id})
         print(res.text)
         if(res.json().get('message_code')==1000):
             deal_data = res.json().get('message_data')
-            category_res = requests.post('http://13.233.211.102/masters/api/get_deal_categories/')
+            category_res = session.post('https://mahi-durg.app/masters/api/get_deal_categories/')
             print(category_res.text)
             if(category_res.json().get('message_code')==1000):
                 categories = category_res.json().get('message_data')
@@ -730,10 +736,10 @@ def update_deal(request):
             
             print(deal_data)
 
-            update_res = requests.post('http://13.233.211.102/masters/api/update_deal/',json=deal_data)
+            update_res = session.post('https://mahi-durg.app/masters/api/update_deal/',json=deal_data)
             print(update_res.text)
             # Return success response
-            category_res = requests.post('http://13.233.211.102/masters/api/insert_deal_category_links/',json={"deal_id":request.POST.get('Deal_id'),"publish_id":request.POST.get('Publish_id'),"deal_category_ids":deal_category_ids})
+            category_res = session.post('https://mahi-durg.app/masters/api/insert_deal_category_links/',json={"deal_id":request.POST.get('Deal_id'),"publish_id":request.POST.get('Publish_id'),"deal_category_ids":deal_category_ids})
             print(category_res.text)
             return JsonResponse({'success': True})
 
@@ -760,7 +766,7 @@ def republish_deal(request):
         }
 
         remaining_days = (republish_end_on_date - datetime.datetime.today().date()).days
-        res = requests.post('http://13.233.211.102/masters/api/insert_publish_details/',json={'publish':publish_data})
+        res = session.post('https://mahi-durg.app/masters/api/insert_publish_details/',json={'publish':publish_data})
         print(res.text)
         return JsonResponse({
             'success': True,
@@ -790,7 +796,7 @@ def filter_deal(request):
         #print(start_date,'start_date')
         #print(end_date,'end_date')
         data=[]
-        res=requests.post("http://13.233.211.102/masters/api/filter_deals/",json={"companyname": company_name,"status":status,"visibleoptions":visible_options_str})
+        res=session.post("https://mahi-durg.app/masters/api/filter_deals/",json={"companyname": company_name,"status":status,"visibleoptions":visible_options_str})
         print(res.text)
         data=res.json().get('message_data',[])
         print(data)
