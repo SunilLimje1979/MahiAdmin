@@ -87,10 +87,10 @@
                 <div class="doctor-profile-card">
                     <h3>Doctor Profile</h3>
                     <p>Name: {{ doctor_data.doctor_firstname }} {{ doctor_data.doctor_lastname }}</p>
-                    <p>Date of Birth: {{ doctor_data.doctor_dateofbirth }}</p>
+                    {%if doctor_data.doctor_dateofbirth %}<p>Date of Birth: {{ doctor_data.doctor_dateofbirth }}</p>{%endif%}
                     <p>Email: {{ doctor_data.doctor_email }}</p>
                     <p>Phone Number: {{ doctor_data.doctor_mobileno }}</p>
-                    <p>Address: {{ doctor_data.doctor_address }}</p>
+                    {%if doctor_data.doctor_address %}<p>Address: {{ doctor_data.doctor_address }}</p>{%endif%}
                 </div>
             </div>
             <div class="tab-pane fade" id="clinic-profile" role="tabpanel" aria-labelledby="clinic-profile-tab">

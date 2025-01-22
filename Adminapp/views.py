@@ -95,7 +95,10 @@ def get_doctor_details(request,id):
     print(data)
     # Convert epoch timestamp to formatted date
     epoch_timestamp = data[0].get('doctor_dateofbirth', 0)
-    formatted_date=datetime.datetime.fromtimestamp(epoch_timestamp).strftime( "%Y-%m-%d")
+    if(epoch_timestamp):
+        formatted_date=datetime.datetime.fromtimestamp(epoch_timestamp).strftime( "%Y-%m-%d")
+    else:
+        formatted_date=0
     created_on = data[0].get('createdon', 0)
     registered_date=datetime.datetime.fromtimestamp(created_on).strftime( "%d-%m-%Y")   
     print(registered_date)
